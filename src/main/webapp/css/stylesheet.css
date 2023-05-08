@@ -1,0 +1,147 @@
+.navbar{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    row-gap: 10px;
+
+    background-color: #333;
+    //margin: 0;
+    padding: 0;
+}
+
+.navbar a{
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.no-hover:hover {
+    background-color: #333 !important;
+}
+
+.navbar a:hover {
+    background-color: #111;
+}
+
+.navbar form {
+    margin-left: auto;
+    padding: 14px 16px;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #000000;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.column{
+    float: left;
+    width: 50%;
+    padding:10px;
+}
+
+.row:after{
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.listview-row-title, .listview-row-title:focus, .listview-row-title:active{
+    border: none;
+    background:none;
+    outline: none;
+    cursor: pointer;
+    font-size: medium;
+}
+
+
+.listview {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.listview-row {
+    padding: 14px 16px;
+    margin: 5px 0px;
+    border: 1px solid black;
+}
+
+.listview-row img{
+    width: 25%;
+    height: auto;
+}
+
+.order-heading {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-table th, .order-heading td{
+    width: 25%;
+}
+
+.card-container{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: center;
+    gap: 10px;
+}
+
+/* Stile predefinito della card */
+.card {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+}
+
+/* Stile dell'immagine nella parte superiore della card */
+.card-img-top {
+    width: 100%;
+    border-top-left-radius: calc(0.25rem - 1px);
+    border-top-right-radius: calc(0.25rem - 1px);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+/* Stile del contenuto della card */
+.card-body {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 1.25rem;
+}
+
+/* Stile del titolo della card */
+.card-title {
+    margin-bottom: .75rem;
+}
+
+/* Stile del testo della card */
+.card-text {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
