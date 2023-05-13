@@ -8,7 +8,9 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-@WebFilter({"/home", "/risultati", "/visualizza", "/ordini", "/carrello", "/image"})
+import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+
+@WebFilter({"/menu", "/results", "/view", "/image"})
 public class LoggedInFilter implements Filter {
 
     /**
@@ -26,11 +28,11 @@ public class LoggedInFilter implements Filter {
         System.out.print("Login checker filter executing ...\n");
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-        String loginpath = req.getServletContext().getContextPath() + "/index.html";
+        String loginpath = req.getServletContext().getContextPath() + "/login.html";
 
         HttpSession s = req.getSession();
         if (s.isNew() || s.getAttribute("user") == null) {
-            res.setStatus(403);
+            res.setStatus(SC_UNAUTHORIZED);
             res.setHeader("Location", loginpath);
             System.out.print("Login checker FAILED...\n");
             return;

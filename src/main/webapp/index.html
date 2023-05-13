@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <title>Login Page</title>
 
-    <script src="/js/utils.js" charset="utf-8" defer></script>
-    <script src="/js/login.js" charset="utf-8" defer></script>
+    <script src="js/utils.js" charset="utf-8" defer></script>
+    <script src="js/login.js" charset="utf-8" defer></script>
 </head>
 <body>
     <h1>Benvenuto - TIW 2022/23 RIA Carrello</h1>
-    <form action="#">
+    <form action="#" id="frmLogin">
         <fieldset>
             <label for="email" >Email: </label>
             <input type="email" id="email" name="email" placeholder="user@provider.ext" required/>
@@ -18,7 +18,7 @@
             <input type="password" id="password" name="password" required />
 
             <input type="submit" id="btnLogin" value="Log In">
-            <p id="errors"></p>
+            <p id="errormessage" style="color: red"></p>
         </fieldset>
     </form>
 

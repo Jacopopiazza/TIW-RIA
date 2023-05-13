@@ -1,5 +1,6 @@
 package it.polimi.tiwria.Controller;
 
+import com.google.gson.Gson;
 import it.polimi.tiwria.Bean.User;
 import it.polimi.tiwria.DAO.UserDAO;
 import it.polimi.tiwria.Utilities.ConnectionFactory;
@@ -69,7 +70,7 @@ public class CheckLogin extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().println(email);
+            response.getWriter().println(new Gson().toJson(user.email()));
         }
     }
 

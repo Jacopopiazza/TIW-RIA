@@ -4,20 +4,22 @@
 
 (function() { // avoid variables ending up in the global scope
 
-    if(sessionStorage.getItem("user") !== null){
+    if(localStorage.getItem("user") !== null){
         window.location.href = "HomePage.html";
     }
 
-    document.getElementById("btnLogin").addEventListener('click', (e) => {
-        var form = e.target.closest("form");
+    var form = document.getElementById("frmLogin");
+
+    form.addEventListener('submit', (e) => {
+       e.preventDefault();
         if (form.checkValidity()) {
-            makeCall("POST", 'CheckLogin', e.target.closest("form"),
+            makeCall("POST", 'CheckLogin', form,
                 function(x) {
                     if (x.readyState == XMLHttpRequest.DONE) {
                         var message = x.responseText;
                         switch (x.status) {
                             case 200:
-                                sessionStorage.setItem('username', message);
+                                localStorage.setItem('user', message);
                                 window.location.href = "HomePage.html";
                                 break;
                             case 400: // bad request

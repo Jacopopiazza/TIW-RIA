@@ -16,6 +16,15 @@
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+    order: 1;
+}
+
+.navbar a.no-hover{
+    order: 2;
+}
+
+.navbar form, .navbar button{
+    order: 3;
 }
 
 .no-hover:hover {

@@ -17,3 +17,39 @@ function makeCall(method, url, formElement, cback, reset = true) {
         formElement.reset();
     }
 }
+
+function sendFormData(method, url, callBack, formData) {
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        callBack(request);
+    };
+    request.open(method, url);
+    if (formData != null) {
+        request.send(formData);
+    } else {
+        request.send();
+    }
+}
+
+function isObjectEmpty(obj) {
+    return Object.keys(obj).length === 0;
+}
+
+function postJsonData( url, obj, cback, toBeStringified = true) {
+    var req = new XMLHttpRequest(); // visible by closure
+    req.onreadystatechange = function() {
+        cback(req)
+    }; // closure
+    req.open("POST", url);
+
+    let json = JSON.stringify(obj);
+
+    if(!toBeStringified){
+        json = obj;
+    }
+
+    req.setRequestHeader("Content-Type", "application/json");
+    req.send(json);
+
+}
+
