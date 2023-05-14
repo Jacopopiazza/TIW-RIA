@@ -323,7 +323,9 @@
 
                 let tdNelCarrello = document.createElement('td');
                 supplierRow.appendChild(tdNelCarrello);
-                tdNelCarrello.textContent = "Altri nel carrello...";
+                tdNelCarrello.setAttribute("data-codicefornitore", supplier.supplier.codice);
+                tdNelCarrello.setAttribute("data-codiceprodotto", details.product.codice);
+                tdNelCarrello.textContent = "";
 
                 let tdAggiungiAlCarrello = document.createElement('td');
                 supplierRow.appendChild(tdAggiungiAlCarrello);
@@ -366,12 +368,93 @@
                 tdAggiungiAlCarrello.appendChild(btnAggiungi);
             }
 
-
+            this.updateAltriNelCarrello();
         }
 
         this.closeDetails = function (li){
             let divDetails = li.querySelector("div");
             li.removeChild(divDetails);
+        }
+
+        this.updateAltriNelCarrello = function (){
+            const self = this;
+            makeCall("GET", "priceList", null, function (response){
+                if (response.readyState === XMLHttpRequest.DONE) {
+                    let text = response.responseText;
+                    switch (response.status) {
+                        case 200:
+                            self.updateTextAltri(response);
+                            break;
+                        case 401:
+                        case 403:
+                            console.log("Not logged in");
+                            alert("You are not logged in");
+                            logout();
+                            break;
+                        case 400:
+                        case 500:
+                            alert(text);
+                            break;
+                        default:
+                            alert("Unknown error");
+                    }
+                }
+            });
+
+
+        }
+
+        this.updateTextAltri = function (response) {
+
+            let listino;
+
+            try{
+                listino = JSON.parse(response.responseText);
+            }catch(e){
+                alert("Internal error");
+                return;
+            }
+
+            let tds = document.querySelectorAll("td[data-codicefornitore]")
+            tds.forEach( td => {
+                let sAttr = td.getAttribute("data-codicefornitore");
+                let sAttr2 = td.getAttribute("data-codiceprodotto");
+                if(isNaN(sAttr) || isNaN(sAttr2)){
+                    alert("Internal error");
+                    pageOrchestrator.hide();
+                    pageOrchestrator.refresh();
+                    return;
+                }
+                let codiceFornitore = parseInt(sAttr);
+                let codiceProdotto = parseInt(sAttr2);
+
+                let carrelloFornitore = cart.getCartForSupplier(codiceFornitore);
+
+                if(carrelloFornitore === undefined){
+                    td.textContent = "Nessun prodotto di questo fornitore nel carrello";
+                    return;
+                }
+
+                let numeroArticoli = carrelloFornitore.prodotti.reduce(function(total, prodotto) {
+                    return total + prodotto.quantita;
+                }, 0);
+
+                let totale = 0;
+                for(let i = 0; i< carrelloFornitore.prodotti.length;i++){
+                    let prodotto = carrelloFornitore.prodotti[i];
+                    let prodottoInListino = listino.filter(x => x.codiceFornitore === codiceFornitore && x.codiceProdotto === prodotto.codiceProdotto);
+                    if(prodottoInListino.length == 0){
+                        alert("Internal error");
+                        pageOrchestrator.hide();
+                        pageOrchestrator.refresh();
+                        return;
+                    }
+                    totale += prodotto.quantita * prodottoInListino[0].prezzo;
+                }
+
+                td.textContent = numeroArticoli + " articoli di questo fornitore nel carrello, per un valore di " + (totale / 100).toFixed(2) + " €";
+
+            })
         }
     }
 

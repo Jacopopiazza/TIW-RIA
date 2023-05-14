@@ -1,5 +1,6 @@
 package it.polimi.tiwria.DAO;
 
+import it.polimi.tiwria.Bean.PriceListEntry;
 import it.polimi.tiwria.Bean.Product;
 import it.polimi.tiwria.Bean.User;
 
@@ -133,6 +134,28 @@ public class ProductDAO {
 
 
         return lasts;
+    }
+
+    public List<PriceListEntry> getPriceList() throws SQLException{
+        String query = "SELECT CodiceProdotto, CodiceFornitore, Prezzo FROM prodottodafornitore;";
+        List<PriceListEntry> results = new ArrayList<>();
+        PreparedStatement statement = connection.prepareStatement(query);
+
+        ResultSet resultSet = statement.executeQuery();
+
+        if(!resultSet.isBeforeFirst()){
+            return results;
+        }
+
+        while (resultSet.next()) {
+            PriceListEntry entry = new PriceListEntry(resultSet.getInt("CodiceFornitore"),
+                                                        resultSet.getInt("CodiceProdotto"),
+                                                        resultSet.getInt("Prezzo"));
+            results.add(entry);
+        }
+
+        return results;
+
     }
 
     public Map<Product, Integer> getProductsFromQueryString(String queryString) throws SQLException{
