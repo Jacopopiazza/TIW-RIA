@@ -6,7 +6,7 @@
         logout();
     }
 
-    let menu, search, cart, pageOrchestrator = new PageOrchestrator();
+    let menu, search, cart, order, pageOrchestrator = new PageOrchestrator();
 
     /**
      * This starts the page if the user is logged in.
@@ -392,7 +392,11 @@
             try{
                 cart = JSON.parse(localStorage.getItem(this.key));
             }catch (e){
-                cart = {};
+                alert("Internal error.\nYou will be taken to homepage");
+                localStorage.removeItem(this.key);
+                pageOrchestrator.hide();
+                pageOrchestrator.refresh();
+                return ;
             }
 
             if(cart === null || isObjectEmpty(cart)){
@@ -418,6 +422,9 @@
                         case 400:
                         case 500:
                             alert(text);
+                            localStorage.removeItem(self.key);
+                            pageOrchestrator.hide();
+                            pageOrchestrator.refresh();
                             break;
                         default:
                             alert("Unknown error");
@@ -429,6 +436,7 @@
         }
 
         this.elaborateCart = function (response) {
+            const self = this;
             let cartInfo;
 
             try{
@@ -438,9 +446,121 @@
                 return;
             }
 
+            console.log(cartInfo);
+
+            let ul = document.createElement('ul');
+            ul.classList.add('listview');
+            this.container.appendChild(ul);
+
+            cartInfo.forEach( (supplier) => {
+                let li = document.createElement('li');
+                li.classList.add('listview-row');
+                ul.appendChild(li);
+
+                let divHeading = document.createElement('div');
+                divHeading.classList.add('order-heading');
+                li.appendChild(divHeading);
+
+                let h3 = document.createElement('h3');
+                h3.textContent = supplier.nome;
+                divHeading.appendChild(h3);
+
+                let btnOrdina = document.createElement('button');
+                btnOrdina.textContent = "Ordina!";
+                btnOrdina.setAttribute('data-codicefornitore', supplier.codice);
+                btnOrdina.onclick = function (e) {
+                    self.sendOrder(e.target.getAttribute('data-codicefornitore'))
+                }
+                divHeading.appendChild(btnOrdina);
+
+                li.appendChild(document.createElement('br'));
+
+                let table = document.createElement('table');
+                let thead = document.createElement('thead');
+                let tbody = document.createElement('tbody');
+                li.appendChild(table);
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                table.classList.add('order-table');
+
+                let headingRow = document.createElement('tr');
+                thead.appendChild(headingRow);
+
+                let thNome = document.createElement('th');
+                thNome.textContent = "Nome";
+                thead.appendChild(thNome);
+
+                let thImg = document.createElement('th');
+                thImg.textContent = "Immagine";
+                thead.appendChild(thImg);
+
+                let thQuantita = document.createElement('th');
+                thQuantita.textContent = "Quantita";
+                thead.appendChild(thQuantita);
+
+                let thPrezzo = document.createElement('th');
+                thPrezzo.textContent = "Prezzo";
+                thead.appendChild(thPrezzo);
+
+                supplier.products.forEach( (product) => {
+                    let row = document.createElement('tr');
+                    tbody.appendChild(row);
+
+                    let tdNome = document.createElement('td');
+                    row.appendChild(tdNome);
+                    tdNome.textContent = product.nome;
+
+                    let tdImg = document.createElement('td');
+                    row.appendChild(tdImg);
+                    let img = document.createElement('img');
+                    img.src = "image?codiceProdotto=" + product.codice;
+                    tdImg.appendChild(img);
+
+                    let tdQuantita = document.createElement('td');
+                    row.appendChild(tdQuantita);
+                    tdQuantita.textContent = product.quantita;
+
+                    let tdPrezzo = document.createElement('td');
+                    row.appendChild(tdPrezzo);
+                    tdPrezzo.textContent = (product.prezzo / 100).toFixed(2) + " €";
+
+                })
 
 
+            })
 
+        }
+
+        this.getCartForSupplier = function (cf) {
+            if (isNaN(cf)){
+                alert("Internal error");
+                return ;
+            }
+
+            let codiceFornitore = parseInt(cf);
+
+            let cart;
+
+            try{
+                cart = JSON.parse(localStorage.getItem(this.key));
+            }catch (e){
+                alert("Internal error.\nYou will be taken to homepage");
+                localStorage.removeItem(this.key);
+                pageOrchestrator.hide();
+                pageOrchestrator.refresh();
+                return ;
+            }
+
+            if(cart == null){
+                cart = [];
+            }
+
+            let fornitore = cart.filter(o => o.codiceFornitore == codiceFornitore);
+
+            if(fornitore.length == 0){
+                return undefined;
+            }
+            else return fornitore.slice()[0];
         }
 
         this.addProduct = function (cp, cf, q) {
@@ -459,56 +579,274 @@
             try{
                 cart = JSON.parse(localStorage.getItem(this.key));
             }catch (e){
-                cart = {};
+                alert("Internal error.\nYou will be taken to homepage");
+                localStorage.removeItem(this.key);
+                pageOrchestrator.hide();
+                pageOrchestrator.refresh();
+                return ;
             }
 
             if(cart === null){
-                cart = {};
+                cart = [];
             }
 
-            if(cart[codiceFornitore] === undefined){
-                let prod = {}
-                prod[codiceProdotto] = quantita;
-                cart[codiceFornitore] = prod;
+            let fornitore= cart.filter( o => o.codiceFornitore === codiceFornitore)[0]
+
+            if (fornitore === undefined){
+                let newVoice = {
+                    "codiceFornitore" : codiceFornitore,
+                    "prodotti" : [
+                        {
+                            "codiceProdotto" : codiceProdotto,
+                            "quantita" : quantita
+                        }
+                    ]
+                }
+                
+                cart.push(newVoice);
+
             }
             else{
-                let prev = 0;
-                if(cart[codiceFornitore][codiceProdotto] !== undefined){
-                    prev = cart[codiceFornitore][codiceProdotto];
+                if(fornitore.prodotti.length == 0){
+                    let newVoice = {
+                                "codiceProdotto" : codiceProdotto,
+                                "quantita" : quantita
+                    }
+
+                    fornitore.prodotti.push(newVoice);
                 }
-                cart[codiceFornitore][codiceProdotto] = prev + quantita;
+                else{
+                    let prodotto = fornitore.prodotti.filter(o => o.codiceProdotto === codiceProdotto)[0];
+
+                    if(prodotto === undefined){
+                        let newVoice = {
+                            "codiceProdotto" : codiceProdotto,
+                            "quantita" : quantita
+                        }
+
+                        fornitore.prodotti.push(newVoice);
+
+                    }
+                    else{
+                        prodotto.quantita += quantita;
+                    }
+                }
+
             }
 
             localStorage.setItem(this.key, JSON.stringify(cart));
         }
 
-        this.sendOrder = function (codiceFornitore) {
+        this.sendOrder = function (cf) {
 
-            if(isNaN(codiceFornitore)) {
+            if(isNaN(cf)) {
                 alert("Internal error");
                 return;
             }
+
+            let codiceFornitore = parseInt(cf);
 
             let cart;
 
             try{
                 cart = JSON.parse(localStorage.getItem(this.key));
             }catch (e){
-                cart = {};
+                alert("Internal error.\nYou will be taken to homepage");
+                localStorage.removeItem(this.key);
+                pageOrchestrator.hide();
+                pageOrchestrator.refresh();
+                return ;
             }
 
-            if(cart[codiceFornitore] === undefined){
+            let fornitore = cart.filter(o => o.codiceFornitore === codiceFornitore)[0];
+
+            if(fornitore === undefined){
                 alert("codiceFornitore non valido");
                 return;
             }
-            if( isObjectEmpty(cart[codiceFornitore]) ){
+            if( isObjectEmpty(fornitore.prodotti) || fornitore.prodotti.length === 0 ){
                 alert("codiceFornitore non valido");
-                delete ( cart[codiceFornitore] );
+                delete ( fornitore );
                 localStorage.setItem(JSON.stringify(cart));
                 return;
             }
 
-            alert("Posso ordinare");
+            postJsonData("orders",fornitore,function (response){
+                if (response.readyState === XMLHttpRequest.DONE) {
+                    let text = response.responseText;
+                    switch (response.status) {
+                        case 200:
+                            pageOrchestrator.hide();
+                            pageOrchestrator.refresh();
+                            pageOrchestrator.showOrders();
+                            break;
+                        case 401:
+                        case 403:
+                            alert("You are not logged in.")
+                            logout();
+                            break;
+                        case 400:
+                        case 500:
+                            alert(text);
+                            pageOrchestrator.hide();
+                            pageOrchestrator.refresh();
+                            pageOrchestrator.showCart();
+                            break;
+                        default:
+                            alert("Unknown error");
+                    }
+                }
+            })
+
+        }
+    }
+
+    function OrderManager(container) {
+        this.container = container;
+
+        this.show = function (){
+
+            const self = this;
+
+            makeCall("GET", "orders", null, function (response){
+                if (response.readyState === XMLHttpRequest.DONE) {
+                    let text = response.responseText;
+                    switch (response.status) {
+                        case 200:
+                            self.elaborateOrders(response);
+                            break;
+                        case 401:
+                        case 403:
+                            alert("You are not logged in.")
+                            logout();
+                            break;
+                        case 400:
+                        case 500:
+                            alert(text);
+                            pageOrchestrator.hide();
+                            pageOrchestrator.refresh();
+                            break;
+                        default:
+                            alert("Unknown error");
+                    }
+                }
+            })
+        }
+
+        this.elaborateOrders = function (response) {
+            const self = this;
+            let orders;
+
+            try{
+                orders = JSON.parse(response.responseText);
+            }catch (e){
+                alert("Internal error. please retry later");
+                pageOrchestrator.hide();
+                pageOrchestrator.refresh();
+                return;
+            }
+
+            if(orders.length == 0){
+                let p = document.createElement('p');
+                p.textContent = "Non hai ancora effettuato alcun ordine.";
+                this.container.appendChild(p);
+                return;
+            }
+
+            let h2 = document.createElement('h2');
+            h2.textContent = "Storico ordini";
+            this.container.appendChild(h2);
+
+            let divRisultati = document.createElement('div');
+            divRisultati.classList.add("risultati");
+            this.container.appendChild(divRisultati);
+
+            let listview = document.createElement('ul');
+            listview.classList.add("listview");
+            divRisultati.appendChild(listview);
+
+            orders.forEach( (order) => {
+                let li = document.createElement('li');
+                listview.appendChild(li);
+                li.classList.add('listview-row');
+
+                let h3 = document.createElement('h3');
+                li.appendChild(h3);
+                h3.textContent = "Codice ordine: " + order.codice;
+
+                let pFornitore = document.createElement('p');
+                li.appendChild(pFornitore);
+                pFornitore.textContent = "Fornitore: " + order.supplier.nome;
+
+                let pDataSpedizione = document.createElement('p');
+                li.appendChild(pDataSpedizione);
+                pDataSpedizione.textContent = order.dataSpedizione === undefined ? "Ordine non ancora spedito." : "Data di spedizione: " + order.dataSpedizione;
+
+                let pIndirizzo = document.createElement('p');
+                li.appendChild(pIndirizzo);
+                pIndirizzo.textContent = 'Indirizzo di spedizione: ' + order.via + ' ' + order.civico + ', ' + order.citta + ' (' + order.provincia + '), ' + order.CAP + ', ' + order.stato;
+
+                let pTotale = document.createElement('p');
+                li.appendChild(pTotale);
+                pTotale.textContent = 'Totale ordine: ' + (order.totaleOrdine / 100).toFixed(2) + ' €';
+
+                let pSpeseSpedizione = document.createElement('p');
+                li.appendChild(pSpeseSpedizione);
+                pSpeseSpedizione.textContent = 'Spese di spedizione: ' + (order.speseSpedizione / 100).toFixed(2) + ' €';
+
+                let titoloProdotti = document.createElement('h3');
+                titoloProdotti.textContent = "Prodotti";
+                li.appendChild(titoloProdotti);
+
+                let table = document.createElement('table');
+                li.appendChild(table);
+                let thead = document.createElement('thead');
+                table.appendChild(thead);
+                let tbody = document.createElement('tbody');
+                table.appendChild(tbody);
+
+                let rowHeading = document.createElement('tr');
+                thead.appendChild(rowHeading);
+
+                let thCodice = document.createElement('th');
+                thCodice.textContent = "Codice Prodotto";
+                rowHeading.appendChild(thCodice);
+
+                let thNome = document.createElement('th');
+                thNome.textContent = "Nome Prodotto";
+                rowHeading.appendChild(thNome);
+
+                let thPrezzo = document.createElement('th');
+                thPrezzo.textContent = "Prezzo Unitario";
+                rowHeading.appendChild(thPrezzo);
+
+                let thQuantita = document.createElement('th');
+                thQuantita.textContent = "Quantita Ordinata";
+                rowHeading.appendChild(thQuantita);
+
+                order.orderDetails.forEach( (product) => {
+                    let rowProduct = document.createElement('tr');
+                    tbody.appendChild(rowProduct);
+
+                    let tdCodice = document.createElement('td');
+                    tdCodice.textContent = product.product.codice;
+                    rowProduct.appendChild(tdCodice);
+
+                    let tdNome = document.createElement('td');
+                    tdNome.textContent = product.product.nome;
+                    rowProduct.appendChild(tdNome);
+
+                    let tdPrezzo = document.createElement('td');
+                    tdPrezzo.textContent = (product.prezzoUnitario / 100).toFixed(2) + " €";
+                    rowProduct.appendChild(tdPrezzo);
+
+                    let tdQuantita = document.createElement('td');
+                    tdQuantita.textContent = product.quantita;
+                    rowProduct.appendChild(tdQuantita);
+                })
+
+            })
+
         }
     }
 
@@ -517,9 +855,28 @@
         this.container = document.getElementById('container');
 
         this.start = function () {
+            const self = this;
             menu = new Menu(document.getElementById("navbar"));
             search = new Search(this.container);
             cart = new Cart(this.container);
+            order = new OrderManager(this.container);
+
+            document.getElementById('aCarrello').onclick= function (e)  {
+                self.hide();
+                self.refresh();
+                self.showCart();
+            };
+
+            document.getElementById('aOrdini').onclick= function (e)  {
+                self.hide();
+                self.refresh();
+                self.showOrders();
+            };
+
+            document.getElementById('aHome').onclick = function (e) {
+                self.hide();
+                self.refresh();
+            };
         }
 
         this.refresh = function (){
@@ -527,12 +884,18 @@
         }
 
         this.showCart = function() {
+            this.hide();
             cart.show();
         }
 
         this.hide = function (){
             this.container.innerHTML = "";
             document.querySelector('#formRisultati input').value = "";
+        }
+
+        this.showOrders = function () {
+            this.hide();
+            order.show();
         }
     }
 }

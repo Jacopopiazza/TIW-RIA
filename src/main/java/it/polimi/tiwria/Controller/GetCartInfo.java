@@ -5,8 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import it.polimi.tiwria.Bean.Product;
 import it.polimi.tiwria.Bean.Supplier;
 import it.polimi.tiwria.Bean.User;
-import it.polimi.tiwria.ClassesForJSON.ProductWithFullInfo;
-import it.polimi.tiwria.ClassesForJSON.ProductWithPrice;
+import it.polimi.tiwria.ClassesForJSON.*;
 import it.polimi.tiwria.DAO.ProductDAO;
 import it.polimi.tiwria.DAO.SupplierDAO;
 import it.polimi.tiwria.Utilities.ConnectionFactory;
@@ -26,6 +25,7 @@ import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet(name = "GetCartInfo", value = "/cartInfo")
@@ -50,79 +50,72 @@ public class GetCartInfo extends HttpServlet {
         String requestBody = sb.toString();
 
 
-        // Define the type of the object we want to create
-        Type type = new TypeToken<Map<Integer, Map<Integer, Integer>>>(){}.getType();
-        Type returnType = new TypeToken<Map<Supplier,Map<ProductWithPrice,Integer>>>(){}.getType();
-
-        JsonSerializer<Map<Supplier, Map<ProductWithPrice, Integer>>> serializer = new JsonSerializer<Map<Supplier, Map<ProductWithPrice, Integer>>>() {
-            @Override
-            public JsonElement serialize(Map<Supplier, Map<ProductWithPrice, Integer>> src, Type typeOfSrc, JsonSerializationContext context) {
-                JsonArray result = new JsonArray();
-                for (Supplier supplier : src.keySet()) {
-                    JsonObject innerObj = new JsonObject();
-                    innerObj.add("codice", new JsonPrimitive(supplier.getCodice()));
-                    innerObj.add("nome", new JsonPrimitive(supplier.getNome()));
-
-                    JsonArray products = new JsonArray();
-                    for (ProductWithPrice product : src.get(supplier).keySet()) {
-                        Gson gson = new GsonBuilder().create();
-                        JsonObject jsonObject = gson.toJsonTree(product).getAsJsonObject();
-                        jsonObject.add("quantita", new JsonPrimitive(src.get(supplier).get(product)));
-                        products.add(jsonObject);
-                    }
-
-                    innerObj.add("products",products);
-                    result.add(innerObj);
-
-                }
-                return result;
-
-
-            }
-        };
-
         // Parse the JSON data into a Java object using Gson
-        Gson gson = new GsonBuilder().registerTypeAdapter(returnType, serializer).create();
+        Gson gson = new Gson();
+
+        Type typeToken = new TypeToken<List<CartInfo>>(){}.getType();
 
         // Parse the JSON data into a Map<Integer, Map<Integer, Integer>> object using Gson
-        Map<Integer, Map<Integer, Integer>> data = gson.fromJson(requestBody, type);
+        List<CartInfo> cart;
 
-        Map<Supplier, Map<ProductWithPrice, Integer>> finalData = new HashMap<>();
+        try{
+            cart = gson.fromJson(requestBody, typeToken);
+        } catch (JsonSyntaxException ex){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Invalid json");
+            return;
+        }
+
+
 
         SupplierDAO supplierDAO = new SupplierDAO(connection);
         ProductDAO productDAO = new ProductDAO(connection);
 
+        JsonArray result = new JsonArray();
+
         try {
 
-            for (Integer codiceFornitore : data.keySet()) {
-
-                Supplier s = supplierDAO.getSupplier(codiceFornitore);
+            for (CartInfo fornitore : cart) {
+                JsonObject obj = new JsonObject();
+                Supplier s = supplierDAO.getSupplier(fornitore.getCodiceFornitore());
 
                 if(s == null){
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     response.getWriter().println("Error while querying db. Retry later");
                     return;
                 }
+                obj.addProperty("codice",s.getCodice());
+                obj.addProperty("nome", s.getNome());
 
-                Map<ProductWithPrice, Integer> prod = new HashMap<>();
-                finalData.put(s, prod);
+                if(fornitore.getProdotti().size() == 0){
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().println("Invalid cart info provided.");
+                    return;
+                }
 
-                for (Integer codiceProdotto : data.get(codiceFornitore).keySet()){
+                JsonArray products = new JsonArray();
+                for (ProductInCartInfo prodotto : fornitore.getProdotti()){
 
-                    Product p = productDAO.getProduct(codiceProdotto);
-                    if(p == null || !productDAO.checkProductHasSupplier(codiceProdotto,codiceFornitore)){
+                    Product p = productDAO.getProduct(prodotto.getCodiceProdotto());
+                    if(p == null || !productDAO.checkProductHasSupplier(prodotto.getCodiceProdotto(),fornitore.getCodiceFornitore())){
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         response.getWriter().println("Error while querying db. Retry later");
                         return;
                     }
 
-                    Integer price = productDAO.getPriceForProductFromSupplier(codiceProdotto,codiceFornitore);
+                    Integer price = productDAO.getPriceForProductFromSupplier(prodotto.getCodiceProdotto(),fornitore.getCodiceFornitore());
+                    JsonObject prod = new JsonObject();
+                    prod.addProperty("codice", p.codice());
+                    prod.addProperty("nome", p.nome());
+                    prod.addProperty("prezzo", price);
+                    prod.addProperty("quantita", prodotto.getQuantita());
+                    products.add(prod);
 
-                    ProductWithPrice product = new ProductWithPrice(p, price);
-                    prod.put(product,data.get(codiceFornitore).get(codiceProdotto));
 
                 }
 
+                obj.add("products",products);
+                result.add(obj);
             }
 
         }catch (SQLException ex){
@@ -131,7 +124,7 @@ public class GetCartInfo extends HttpServlet {
             return;
         }
 
-        String json = gson.toJson(finalData);
+        String json = gson.toJson(result);
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -147,6 +140,7 @@ public class GetCartInfo extends HttpServlet {
         } catch (SQLException ignored) {
         }
     }
+
 
 
 }
