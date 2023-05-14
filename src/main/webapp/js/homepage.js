@@ -721,7 +721,7 @@
         }
 
         this.sendOrder = function (cf) {
-
+            const self = this;
             if(isNaN(cf)) {
                 alert("Internal error");
                 return;
@@ -759,6 +759,7 @@
                     let text = response.responseText;
                     switch (response.status) {
                         case 200:
+                            self.removeProductsOfSupplier(codiceFornitore);
                             pageOrchestrator.hide();
                             pageOrchestrator.refresh();
                             pageOrchestrator.showOrders();
@@ -781,6 +782,36 @@
                 }
             })
 
+        }
+
+        this.removeProductsOfSupplier = function (cf){
+
+            if(isNaN(cf)){
+                alert("Internal error");
+                localStorage.removeItem(this.key);
+                pageOrchestrator.hide();
+                pageOrchestrator.refresh();
+                pageOrchestrator.showOrders();
+            }
+
+            let codiceFornitore = parseInt(cf);
+
+            let cart;
+
+            try{
+                cart = JSON.parse(localStorage.getItem(this.key));
+            }catch (e){
+                alert("Internal error.\nYou will be taken to the orders page");
+                localStorage.removeItem(this.key);
+                pageOrchestrator.hide();
+                pageOrchestrator.refresh();
+                pageOrchestrator.showOrders();
+                return ;
+            }
+
+            cart = cart.filter(x => x.codiceFornitore != codiceFornitore);
+
+            localStorage.setItem(this.key, JSON.stringify(cart));
         }
     }
 
