@@ -83,7 +83,7 @@ public class Orders extends HttpServlet {
         // Parse the JSON data into a Java object using Gson
         Gson gson = new Gson();
 
-        // Parse the JSON data into a Map<Integer, Map<Integer, Integer>> object using Gson
+        // Parse the JSON data
         CartInfo data;
 
         try{

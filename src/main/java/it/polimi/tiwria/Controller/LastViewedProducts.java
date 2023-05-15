@@ -22,7 +22,7 @@ import java.util.List;
 @WebServlet(name = "MenuProducts",value = "/menu")
 @MultipartConfig
 
-public class MenuProducts extends HttpServlet {
+public class LastViewedProducts extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private Connection connection;
