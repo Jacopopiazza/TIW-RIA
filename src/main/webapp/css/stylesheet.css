@@ -35,7 +35,7 @@
     background-color: #111;
 }
 
-.navbar form {
+.navbar form, .navbar button {
     margin-left: auto;
     padding: 14px 16px;
 }
@@ -153,4 +153,14 @@ tr:nth-child(even) {
 .card-text {
     margin-top: 0;
     margin-bottom: 1rem;
+}
+
+.modal-content {
+    display: none;
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%;
+    height: auto;
+    position: absolute;
 }

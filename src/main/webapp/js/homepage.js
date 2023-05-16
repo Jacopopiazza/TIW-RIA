@@ -6,7 +6,7 @@
         logout();
     }
 
-    let menu, search, cart, order, pageOrchestrator = new PageOrchestrator();
+    let home, search, cart, order, pageOrchestrator = new PageOrchestrator();
 
     /**
      * This starts the page if the user is logged in.
@@ -58,10 +58,10 @@
         }
     }
 
-    function Menu(container) {
+    function Home(container) {
         this.container = container;
 
-        this.updateMenu = function (response){
+        this.showLastViewedProducts = function (response){
             let products
             try{
                 products = JSON.parse(response.responseText);
@@ -71,44 +71,74 @@
             }
 
             if(products.length == 0){
-                var a = document.createElement('a');
-                var text = document.createTextNode("No products to show.");
-                a.appendChild(text);
-                this.container.appendChild(a);
+                let h2NoProd = document.createElement('h2');
+                h2NoProd.textContent="No products to show.";
+                this.container.appendChild(h2NoProd);
             }
             else{
-                let info = document.createElement('a');
-                let infoText = document.createTextNode("Hai visto: ");
-                info.appendChild(infoText);
-                info.classList.add("no-hover");
-                this.container.appendChild(info);
+                let h2Titolo = document.createElement('h2');
+                h2Titolo.textContent = "Hai visto di recente o potrebbe interessarti: ";
+                this.container.appendChild(h2Titolo);
+
+                let divContainer = document.createElement('div');
+                divContainer.classList.add("card-container");
+                this.container.appendChild(divContainer);
+
                 for(let i = 0;i<products.length;i++){
-                    var a = document.createElement('a');
-                    var text = document.createTextNode(products[i].codice + ". " + products[i].nome);
-                    a.classList.add("no-hover");
-                    a.appendChild(text);
-                    this.container.appendChild(a);
+                    let card = document.createElement('div');
+                    card.classList.add("card");
+                    card.style = "width: 18rem;";
+                    divContainer.appendChild(card);
+
+                    let img = document.createElement('img');
+                    img.src = 'image?codiceProdotto=' + products[i].codice;
+                    img.classList.add('card-img-top');
+                    card.appendChild(img);
+
+                    let cardBody = document.createElement('div');
+                    cardBody.classList.add("card-body");
+                    card.appendChild(cardBody);
+
+                    let pCodice = document.createElement('p');
+                    pCodice.textContent = "Codice: " + products[i].codice;
+                    cardBody.appendChild(pCodice);
+
+                    let pNome = document.createElement('p');
+                    pNome.textContent = "Nome Prodotto: " + products[i].nome;
+                    cardBody.appendChild(pNome);
+
                 }
             }
 
         }
 
-        this.update = function (){
+        this.show = function (){
             let self = this;
 
-            var parent = document.getElementById('navbar');
-            var noHoverElements = parent.querySelectorAll('.no-hover');
+            let divSearch = document.createElement('div');
+            divSearch.classList.add("searchForm");
+            this.container.appendChild(divSearch);
 
-            noHoverElements.forEach(function(element) {
-                parent.removeChild(element);
-            });
+            let formSearch = document.createElement('form');
+            formSearch.action = "#";
+            formSearch.id = "formRisultati";
+            divSearch.appendChild(formSearch);
+
+            let inputSearch = document.createElement('input');
+            inputSearch.type = "text";
+            inputSearch.placeholder = "Cerca...";
+            inputSearch.name = "queryString";
+            inputSearch.required = true;
+            formSearch.appendChild(inputSearch);
+
+            formSearch.addEventListener("submit", search.handleSearch, false);
 
             makeCall("GET","menu",null,function (response){
                 if (response.readyState === XMLHttpRequest.DONE) {
                     let text = response.responseText;
                     switch (response.status) {
                         case 200:
-                            self.updateMenu(response);
+                            self.showLastViewedProducts(response);
                             break;
                         case 401:
                         case 403:
@@ -132,11 +162,13 @@
     function Search(container) {
         this.containter = container;
 
-        const form = document.getElementById("formRisultati");
         const self = this;
-        form.addEventListener("submit", function (e) {
+
+        this.handleSearch = function (e) {
             e.preventDefault();
             self.containter.innerHTML = "";
+
+            var form = e.target;
 
             if (form.checkValidity()) {
                 //make a request to the server to create the document.
@@ -166,7 +198,7 @@
                 },true )
 
             } else form.reportValidity();
-        }, false);
+        }
 
         this.showResults = function (response) {
             let results;
@@ -184,6 +216,18 @@
                 this.containter.appendChild(p);
                 return;
             }
+
+            let divModalContent = document.createElement('div')
+            divModalContent.id = "myModal";
+            divModalContent.classList.add('modal-content')
+            divModalContent.onmouseleave = function(e) {
+                closeModal();
+            }
+            this.containter.appendChild(divModalContent);
+
+            let content = document.createElement('h2')
+            content.textContent = "PROVA"
+            divModalContent.appendChild(content);
 
             let ul = document.createElement('ul');
             ul.classList.add('listview');
@@ -452,9 +496,96 @@
                     totale += prodotto.quantita * prodottoInListino[0].prezzo;
                 }
 
+
+
                 td.textContent = numeroArticoli + " articoli di questo fornitore nel carrello, per un valore di " + (totale / 100).toFixed(2) + " €";
 
+                td.onmouseover = function(e) {
+
+                    openModal(e)
+
+                }
+
+
+
             })
+        }
+
+        function openModal(e) {
+            let modal = document.getElementById("myModal");
+
+            let rect = e.target.getBoundingClientRect();
+            let height = e.target.offsetHeight;
+
+            let codiceFornitore = e.target.getAttribute("data-codicefornitore");
+            let cartFornitore = cart.getCartForSupplier(codiceFornitore);
+
+            console.log(cartFornitore);
+
+            let string = "[" + JSON.stringify(cartFornitore) + "]"
+
+            postJsonData("cartInfo", string,function(response){
+
+                if (response.readyState === XMLHttpRequest.DONE) {
+                    let text = response.responseText;
+                    switch (response.status) {
+                        case 200:
+
+                            let info;
+                            try{
+                                info = JSON.parse(response.responseText);
+                            }catch (e){
+                                alert("Error in parsing JSON: " + e);
+                                pageOrchestrator.hide();
+                                pageOrchestrator.showHome();
+                                return;
+                            }
+
+                            modal.style.display = "block"; // Mostra la finestra modale
+                            Object.assign(modal.style, {
+                                left: `${rect.left - 40}px`,
+                                top: `${e.pageY - height}px`,
+                                display:'block'
+                            });
+                            modal.innerHTML = "";
+
+                            let name = document.createElement('h4');
+                            name.textContent = info[0].nome;
+                            modal.appendChild(name);
+
+                            let list = document.createElement('ul');
+                            modal.appendChild(list);
+
+
+                            let products = info[0].products;
+                            products.forEach( prod => {
+                                let li = document.createElement('li');
+                                li.textContent = prod.quantita + "x " + prod.nome;
+                                list.appendChild(li);
+                            })
+
+                            break;
+                        case 401:
+                        case 403:
+                            alert("You are not logged in.")
+                            logout();
+                            break;
+                        case 400:
+                        case 500:
+                            alert(text);
+                            break;
+                        default:
+                            alert("Unknown error");
+                    }
+                }
+
+            },false);
+
+
+        }
+
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none"; // Nasconde la finestra modale
         }
     }
 
@@ -970,7 +1101,7 @@
 
         this.start = function () {
             const self = this;
-            menu = new Menu(document.getElementById("navbar"));
+            home = new Home(this.container);
             search = new Search(this.container);
             cart = new Cart(this.container);
             order = new OrderManager(this.container);
@@ -990,11 +1121,19 @@
             document.getElementById('aHome').onclick = function (e) {
                 self.hide();
                 self.refresh();
+                self.showHome();
             };
+
+            this.showHome();
         }
 
         this.refresh = function (){
-            menu.update();
+
+        }
+
+        this.showHome = function (){
+            this.hide();
+            home.show();
         }
 
         this.showCart = function() {
@@ -1004,7 +1143,6 @@
 
         this.hide = function (){
             this.container.innerHTML = "";
-            document.querySelector('#formRisultati input').value = "";
         }
 
         this.showOrders = function () {
