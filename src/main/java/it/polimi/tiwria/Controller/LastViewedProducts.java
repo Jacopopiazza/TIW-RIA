@@ -19,7 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet(name = "MenuProducts",value = "/menu")
+@WebServlet(name = "LastViewedProducts",value = "/lastViewedProducts")
 @MultipartConfig
 
 public class LastViewedProducts extends HttpServlet {
@@ -60,7 +60,7 @@ public class LastViewedProducts extends HttpServlet {
         response.getWriter().write(json);
 
     }
-        @Override
+    @Override
     public void destroy() {
         try {
             if (connection != null)

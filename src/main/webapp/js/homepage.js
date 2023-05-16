@@ -30,7 +30,7 @@
             logout();
         });
 
-        pageOrchestrator.refresh();
+        pageOrchestrator.showHome();
     }
 
     /**
@@ -48,6 +48,8 @@
                         break;
                     default :
                         alert("Unknown Error");
+                        pageOrchestrator.hide();
+                        pageOrchestrator.showHome();
                         break;
                 }
             }
@@ -133,7 +135,7 @@
 
             formSearch.addEventListener("submit", search.handleSearch, false);
 
-            makeCall("GET","menu",null,function (response){
+            makeCall("GET","lastViewedProducts",null,function (response){
                 if (response.readyState === XMLHttpRequest.DONE) {
                     let text = response.responseText;
                     switch (response.status) {
@@ -142,16 +144,20 @@
                             break;
                         case 401:
                         case 403:
-                            console.log("Not logged in");
-                            alert("You are not logged in");
+                            alert("You are not logged in.\nYou will be taken to the login page.");
                             logout();
                             break;
                         case 400:
                         case 500:
-                            alert(text);
+                            alert(text + "\nYou will be taken to the homepage.");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
                             break;
                         default:
                             alert("Unknown error");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
+                            break;
                     }
                 }
             })
@@ -184,15 +190,20 @@
                                 break;
                             case 401:
                             case 403:
-                                alert("You are not logged in.")
+                                alert("You are not logged in.\nYou will be taken to the login page.")
                                 logout();
                                 break;
                             case 400:
                             case 500:
-                                alert(text);
+                                alert(text + "\nYou will be taken to the homepage.");
+                                pageOrchestrator.hide();
+                                pageOrchestrator.showHome();
                                 break;
                             default:
                                 alert("Unknown error");
+                                pageOrchestrator.hide();
+                                pageOrchestrator.showHome();
+                                break;
                         }
                     }
                 },true )
@@ -256,19 +267,23 @@
                                 switch (response.status) {
                                     case 200:
                                         self.openDetails(e.target.parentNode, response);
-                                        pageOrchestrator.refresh();
                                         break;
                                     case 401:
                                     case 403:
-                                        alert("You are not logged in.")
+                                        alert("You are not logged in.\nYou will be taken to the login page.")
                                         logout();
                                         break;
                                     case 400:
                                     case 500:
-                                        alert(text);
+                                        alert(text + "\nYou will be taken to the homepage.");
+                                        pageOrchestrator.hide();
+                                        pageOrchestrator.showHome();
                                         break;
                                     default:
                                         alert("Unknown error");
+                                        pageOrchestrator.hide();
+                                        pageOrchestrator.showHome();
+                                        return;
                                 }
                             }
                         },false);
@@ -391,13 +406,16 @@
                     let parent = e.target.parentNode;
                     let inputQuantita = parent.querySelector('input');
 
-                    if(isNaN(inputQuantita.value) || inputQuantita.value <= 0) return;
+                    if(isNaN(inputQuantita.value) || inputQuantita.value <= 0 || !Number.isInteger(parseFloat(inputQuantita.value))){
+                        alert("Valore quantità non valido.")
+                        return;
+                    }
 
                     let quantita = inputQuantita.value;
                     let codiceProdotto = e.target.getAttribute('data-codiceprodotto');
                     let codiceFornitore = e.target.getAttribute('data-codicefornitore');
 
-                    if(isNaN(codiceProdotto) || isNaN(codiceFornitore)){
+                    if(isNaN(codiceProdotto) || isNaN(codiceFornitore) || !Number.isInteger(parseFloat(codiceProdotto)) || !Number.isInteger(parseFloat(codiceFornitore))){
                         alert("Internal error");
                         return;
                     }
@@ -416,8 +434,9 @@
         }
 
         this.closeDetails = function (li){
-            let divDetails = li.querySelector("div");
-            li.removeChild(divDetails);
+            let divDetails = li.querySelectorAll("div");
+            if (divDetails != null)
+                divDetails.forEach( node => {li.removeChild(node)})
         }
 
         this.updateAltriNelCarrello = function (){
@@ -431,16 +450,20 @@
                             break;
                         case 401:
                         case 403:
-                            console.log("Not logged in");
-                            alert("You are not logged in");
+                            alert("You are not logged in\nYou will ne taken to the login page.");
                             logout();
                             break;
                         case 400:
                         case 500:
-                            alert(text);
+                            alert(text + "\nYou will be taken to the homepage.");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
                             break;
                         default:
                             alert("Unknown error");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
+                            break;
                     }
                 }
             });
@@ -464,9 +487,9 @@
                 let sAttr = td.getAttribute("data-codicefornitore");
                 let sAttr2 = td.getAttribute("data-codiceprodotto");
                 if(isNaN(sAttr) || isNaN(sAttr2)){
-                    alert("Internal error");
+                    alert("Internal error\nYou will be taken to the homepage.");
                     pageOrchestrator.hide();
-                    pageOrchestrator.refresh();
+                    pageOrchestrator.showHome();
                     return;
                 }
                 let codiceFornitore = parseInt(sAttr);
@@ -488,9 +511,9 @@
                     let prodotto = carrelloFornitore.prodotti[i];
                     let prodottoInListino = listino.filter(x => x.codiceFornitore === codiceFornitore && x.codiceProdotto === prodotto.codiceProdotto);
                     if(prodottoInListino.length == 0){
-                        alert("Internal error");
+                        alert("Internal error\nYou will be taken to the homepage.");
                         pageOrchestrator.hide();
-                        pageOrchestrator.refresh();
+                        pageOrchestrator.showHome();
                         return;
                     }
                     totale += prodotto.quantita * prodottoInListino[0].prezzo;
@@ -520,7 +543,9 @@
             let codiceFornitore = e.target.getAttribute("data-codicefornitore");
             let cartFornitore = cart.getCartForSupplier(codiceFornitore);
 
-            console.log(cartFornitore);
+            if(cartFornitore == null){
+                return;
+            }
 
             let string = "[" + JSON.stringify(cartFornitore) + "]"
 
@@ -567,15 +592,20 @@
                             break;
                         case 401:
                         case 403:
-                            alert("You are not logged in.")
+                            alert("You are not logged in.\nYou will be taken to the login page.")
                             logout();
                             break;
                         case 400:
                         case 500:
-                            alert(text);
+                            alert(text + "\nYou will be taken to the homepage.");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
                             break;
                         default:
                             alert("Unknown error");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
+                            break;
                     }
                 }
 
@@ -609,7 +639,7 @@
                 alert("Internal error.\nYou will be taken to homepage");
                 localStorage.removeItem(this.key);
                 pageOrchestrator.hide();
-                pageOrchestrator.refresh();
+                pageOrchestrator.showHome();
                 return ;
             }
 
@@ -630,7 +660,7 @@
                             break;
                         case 401:
                         case 403:
-                            alert("You are not logged in.")
+                            alert("You are not logged in.\nYou will be taken to the login page.")
                             logout();
                             break;
                         case 400:
@@ -638,10 +668,13 @@
                             alert(text);
                             localStorage.removeItem(self.key);
                             pageOrchestrator.hide();
-                            pageOrchestrator.refresh();
+                            pageOrchestrator.showHome();
                             break;
                         default:
                             alert("Unknown error");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
+                            break;
                     }
                 }
             });
@@ -683,6 +716,14 @@
                 btnOrdina.textContent = "Ordina!";
                 btnOrdina.setAttribute('data-codicefornitore', supplier.codice);
                 btnOrdina.onclick = function (e) {
+
+                    if(isNaN(e.target.getAttribute('data-codicefornitore')) || !Number.isInteger(parseFloat(e.target.getAttribute("data-codicefornitore")))){
+                        alert("Internal error");
+                        pageOrchestrator.hide();
+                        pageOrchestrator.showCart();
+                        return;
+                    }
+
                     self.sendOrder(e.target.getAttribute('data-codicefornitore'))
                 }
                 divHeading.appendChild(btnOrdina);
@@ -761,7 +802,7 @@
                 alert("Internal error.\nYou will be taken to homepage");
                 localStorage.removeItem(this.key);
                 pageOrchestrator.hide();
-                pageOrchestrator.refresh();
+                pageOrchestrator.showHome();
                 return ;
             }
 
@@ -796,7 +837,7 @@
                 alert("Internal error.\nYou will be taken to homepage");
                 localStorage.removeItem(this.key);
                 pageOrchestrator.hide();
-                pageOrchestrator.refresh();
+                pageOrchestrator.showHome();
                 return ;
             }
 
@@ -868,7 +909,7 @@
                 alert("Internal error.\nYou will be taken to homepage");
                 localStorage.removeItem(this.key);
                 pageOrchestrator.hide();
-                pageOrchestrator.refresh();
+                pageOrchestrator.showHome();
                 return ;
             }
 
@@ -876,12 +917,17 @@
 
             if(fornitore === undefined){
                 alert("codiceFornitore non valido");
+                pageOrchestrator.hide();
+                pageOrchestrator.showCart();
+                return ;
                 return;
             }
-            if( isObjectEmpty(fornitore.prodotti) || fornitore.prodotti.length === 0 ){
+            if( fornitore.prodotti == null || isObjectEmpty(fornitore.prodotti) || fornitore.prodotti.length === 0 ){
                 alert("codiceFornitore non valido");
-                delete ( fornitore );
+                cart = cart.filter(o => o.codiceFornitore != codiceFornitore);
                 localStorage.setItem(JSON.stringify(cart));
+                pageOrchestrator.hide();
+                pageOrchestrator.showHome();
                 return;
             }
 
@@ -892,23 +938,24 @@
                         case 200:
                             self.removeProductsOfSupplier(codiceFornitore);
                             pageOrchestrator.hide();
-                            pageOrchestrator.refresh();
                             pageOrchestrator.showOrders();
                             break;
                         case 401:
                         case 403:
-                            alert("You are not logged in.")
+                            alert("You are not logged in.\nYou will be taken to the login page.")
                             logout();
                             break;
                         case 400:
                         case 500:
                             alert(text);
                             pageOrchestrator.hide();
-                            pageOrchestrator.refresh();
                             pageOrchestrator.showCart();
                             break;
                         default:
                             alert("Unknown error");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
+                            break;
                     }
                 }
             })
@@ -921,7 +968,6 @@
                 alert("Internal error");
                 localStorage.removeItem(this.key);
                 pageOrchestrator.hide();
-                pageOrchestrator.refresh();
                 pageOrchestrator.showOrders();
             }
 
@@ -935,7 +981,6 @@
                 alert("Internal error.\nYou will be taken to the orders page");
                 localStorage.removeItem(this.key);
                 pageOrchestrator.hide();
-                pageOrchestrator.refresh();
                 pageOrchestrator.showOrders();
                 return ;
             }
@@ -962,17 +1007,20 @@
                             break;
                         case 401:
                         case 403:
-                            alert("You are not logged in.")
+                            alert("You are not logged in.\nYou will be taken to the login page.")
                             logout();
                             break;
                         case 400:
                         case 500:
-                            alert(text);
+                            alert(text +  "\nYou will be taken to the homepage.");
                             pageOrchestrator.hide();
-                            pageOrchestrator.refresh();
+                            pageOrchestrator.showHome();
                             break;
                         default:
                             alert("Unknown error");
+                            pageOrchestrator.hide();
+                            pageOrchestrator.showHome();
+                            break;
                     }
                 }
             })
@@ -987,7 +1035,7 @@
             }catch (e){
                 alert("Internal error. please retry later");
                 pageOrchestrator.hide();
-                pageOrchestrator.refresh();
+                pageOrchestrator.showHome();
                 return;
             }
 
@@ -1108,27 +1156,20 @@
 
             document.getElementById('aCarrello').onclick= function (e)  {
                 self.hide();
-                self.refresh();
                 self.showCart();
             };
 
             document.getElementById('aOrdini').onclick= function (e)  {
                 self.hide();
-                self.refresh();
                 self.showOrders();
             };
 
             document.getElementById('aHome').onclick = function (e) {
                 self.hide();
-                self.refresh();
                 self.showHome();
             };
 
-            this.showHome();
-        }
-
-        this.refresh = function (){
-
+            self.hide();
         }
 
         this.showHome = function (){
