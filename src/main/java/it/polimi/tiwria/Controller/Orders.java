@@ -125,6 +125,20 @@ public class Orders extends HttpServlet {
             return;
         }
 
+        for(ProductInCartInfo prod : prodottiPerOrdine){
+            try{
+                if(!productDAO.checkProductHasSupplier(prod.getCodiceProdotto(),data.getCodiceFornitore())){
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("Error product not sold by given supplier");
+                    return;
+                }
+            }catch (SQLException ex){
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("Error in checking product/supplier info.");
+                return;
+            }
+        }
+
         //Calcuate total of the order
         try {
             subTotale =  prodottiPerOrdine.stream().map(x -> {
