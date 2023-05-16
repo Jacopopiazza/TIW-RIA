@@ -33,6 +33,9 @@ public class LastViewedProducts extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         ProductDAO productDAO = new ProductDAO(connection);
         HttpSession session = request.getSession(false);
         String userEmail = ((User)session.getAttribute("user")).email();

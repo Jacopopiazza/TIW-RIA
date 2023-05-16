@@ -34,6 +34,9 @@ public class CheckLogin extends HttpServlet {
         String email = null;
         String password = null;
 
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         email = StringEscapeUtils.escapeJava(request.getParameter("email"));
         password = StringEscapeUtils.escapeJava(request.getParameter("password"));
 

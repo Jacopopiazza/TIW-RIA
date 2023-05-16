@@ -27,6 +27,10 @@ public class GetPriceList extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         ProductDAO productDAO = new ProductDAO(connection);
         Gson gson = new Gson();
         List<PriceListEntry> priceList;

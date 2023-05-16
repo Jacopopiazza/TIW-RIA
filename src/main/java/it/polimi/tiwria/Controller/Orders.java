@@ -37,6 +37,9 @@ public class Orders extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         HttpSession session = request.getSession(false);
         OrderDAO orderDAO = new OrderDAO(connection);
 
@@ -71,6 +74,9 @@ public class Orders extends HttpServlet {
     }
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
         BufferedReader reader = request.getReader();
         StringBuilder sb = new StringBuilder();
