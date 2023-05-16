@@ -37,27 +37,22 @@
      * This method logs out the user and goes to the login page.
      */
     function logout() {
-        let loggedOut = false;
         makeCall("POST", 'logout',null, function (response) {
             if (response.readyState === XMLHttpRequest.DONE) {
                 switch (response.status) {
                     case 200:
-                        loggedOut = true;
                         localStorage.clear();
                         window.location.href = "index.html";
                         break;
                     default :
-                        alert("Unknown Error");
+                        alert("Unknown Error.\nNot logged out");
                         pageOrchestrator.hide();
                         pageOrchestrator.showHome();
                         break;
                 }
             }
         });
-        if (!loggedOut) {
-            localStorage.clear();
-            window.location.href = "index.html";
-        }
+
     }
 
     function Home(container) {

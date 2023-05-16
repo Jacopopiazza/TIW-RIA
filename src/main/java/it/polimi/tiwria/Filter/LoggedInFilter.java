@@ -10,7 +10,7 @@ import java.io.IOException;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
-@WebFilter({"/lastViewedProducts", "/cartInfo", "/orders", "/priceList", "/results", "/view", "/image", "/logout"})
+@WebFilter({"/lastViewedProducts", "/cartInfo", "/orders", "/priceList", "/results", "/view", "/image"})
 public class LoggedInFilter implements Filter {
 
     /**

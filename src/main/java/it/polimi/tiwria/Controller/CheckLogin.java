@@ -35,10 +35,10 @@ public class CheckLogin extends HttpServlet {
         String password = null;
 
         request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
 
-        email = StringEscapeUtils.escapeJava(request.getParameter("email"));
-        password = StringEscapeUtils.escapeJava(request.getParameter("password"));
+
+        email = request.getParameter("email");
+        password = request.getParameter("password");
 
         if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -69,12 +69,15 @@ public class CheckLogin extends HttpServlet {
             response.getWriter().println("Incorrect credentials");
         }
         else {
-            request.getSession().setAttribute("user", user);
+            request.getSession(true).setAttribute("user", user);
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().println(new Gson().toJson(user.email()));
         }
+
+        response.setCharacterEncoding("UTF-8");
+
     }
 
     /**

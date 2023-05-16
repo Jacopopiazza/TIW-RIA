@@ -5,8 +5,6 @@
 function makeCall(method, url, formElement, cback, reset = true) {
     var req = new XMLHttpRequest(); // visible by closure
 
-    req.setRequestHeader("Content-Type", "charset=utf-8");
-
     req.onreadystatechange = function() {
         cback(req)
     }; // closure
@@ -51,7 +49,7 @@ function postJsonData( url, obj, cback, toBeStringified = true) {
         json = obj;
     }
 
-    req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    req.setRequestHeader("Content-Type", "application/json");
     req.send(json);
 
 }

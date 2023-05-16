@@ -29,7 +29,9 @@ public class LoggedOutFilter implements Filter {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             HttpSession session = httpRequest.getSession();
             if (!session.isNew() && session.getAttribute("user") != null) {
-                ((HttpServletResponse) response).sendRedirect(((HttpServletRequest) request).getContextPath() + "/home");
+                ((HttpServletResponse)response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+                return;
             } else {
                 chain.doFilter(request, response);
             }
