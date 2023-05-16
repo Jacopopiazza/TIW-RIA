@@ -1,4 +1,4 @@
 package it.polimi.tiwria.Bean;
 
-public record PriceListEntry (int codiceFornitore, int codiceProdotto, int prezzo) {
+public record PriceListEntry (int idSupplier, int idProduct, int prezzo) {
 }

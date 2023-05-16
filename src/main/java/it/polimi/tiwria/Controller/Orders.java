@@ -100,9 +100,9 @@ public class Orders extends HttpServlet {
             return;
         }
 
-        int codiceFornitore = data.getCodiceFornitore();
+        int idSupplier = data.getCodiceFornitore();
 
-        if(codiceFornitore < 0){
+        if(idSupplier < 0){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("Invalid parameter");
             return;
@@ -113,7 +113,7 @@ public class Orders extends HttpServlet {
 
         //Create it from JSON
         List<ProductInCartInfo> prodottiPerOrdine = data.getProdotti();
-        int finalCodiceFornitore = codiceFornitore;
+        int finalCodiceFornitore = idSupplier;
         int subTotale = -1;
         int articoliNelCarrello = prodottiPerOrdine.stream().map(o -> o.getQuantita()).reduce(0, Integer::sum);
         int speseSpedizione = 0;
@@ -163,7 +163,7 @@ public class Orders extends HttpServlet {
 
         //Get supplier to calculate delivery costs
         try{
-            supplier = supplierDAO.getSupplier(codiceFornitore);
+            supplier = supplierDAO.getSupplier(idSupplier);
         }catch (SQLException ex){
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Error in retriving supplier info.");
@@ -179,7 +179,7 @@ public class Orders extends HttpServlet {
         //get eventual delivery costs
         if(supplier.getSogliaSpedizioneGratuita() == null ||  subTotale < supplier.getSogliaSpedizioneGratuita()){
             try{
-                speseSpedizione = supplierDAO.getDeliveryCostOfSupplierForNProducts(codiceFornitore, articoliNelCarrello);
+                speseSpedizione = supplierDAO.getDeliveryCostOfSupplierForNProducts(idSupplier, articoliNelCarrello);
             }catch (SQLException ex){
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 response.getWriter().write("Error in retriving delivery cost info.");
@@ -192,7 +192,7 @@ public class Orders extends HttpServlet {
         User user = (User)request.getSession(false).getAttribute("user");
 
         try{
-            orderDAO.createOrder(user, codiceFornitore, speseSpedizione, subTotale, prodottiPerOrdine, supplier.getNome());
+            orderDAO.createOrder(user, idSupplier, speseSpedizione, subTotale, prodottiPerOrdine, supplier.getNome());
         }catch (SQLException ex){
 
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

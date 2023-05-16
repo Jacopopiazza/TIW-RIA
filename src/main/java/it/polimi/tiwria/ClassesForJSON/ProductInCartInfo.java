@@ -1,19 +1,19 @@
 package it.polimi.tiwria.ClassesForJSON;
 
 public class ProductInCartInfo {
-    private Integer codiceProdotto;
-    private Integer quantita;
+    private Integer idProduct;
+    private Integer amount;
 
-    public ProductInCartInfo(Integer codiceProdotto, Integer quantita) {
-        this.codiceProdotto = codiceProdotto;
-        this.quantita = quantita;
+    public ProductInCartInfo(Integer idProduct, Integer amount) {
+        this.idProduct = idProduct;
+        this.amount = amount;
     }
 
     public Integer getCodiceProdotto() {
-        return codiceProdotto;
+        return idProduct;
     }
 
     public Integer getQuantita() {
-        return quantita;
+        return amount;
     }
 }

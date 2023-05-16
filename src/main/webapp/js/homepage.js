@@ -88,7 +88,7 @@
                     divContainer.appendChild(card);
 
                     let img = document.createElement('img');
-                    img.src = 'image?codiceProdotto=' + products[i].codice;
+                    img.src = 'image?idProduct=' + products[i].codice;
                     img.classList.add('card-img-top');
                     card.appendChild(img);
 
@@ -255,7 +255,7 @@
 
                     if(e.target.getAttribute("data-opened") === null || e.target.getAttribute("data-opened") === "false"){
                         e.target.setAttribute("data-opened", true);
-                        let url = "view?codiceProdotto=" + e.target.getAttribute("data-codiceprodotto");
+                        let url = "view?idProduct=" + e.target.getAttribute("data-codiceprodotto");
                         makeCall("GET", url,null,function(response){
                             if (response.readyState === XMLHttpRequest.DONE) {
                                 let text = response.responseText;
@@ -309,7 +309,7 @@
             li.appendChild(div);
 
             let img = document.createElement('img');
-            img.src = "image?codiceProdotto=" + details.product.codice;
+            img.src = "image?idProduct=" + details.product.codice;
             div.appendChild(img);
 
             let p1 = document.createElement('p');
@@ -406,16 +406,16 @@
                         return;
                     }
 
-                    let quantita = inputQuantita.value;
-                    let codiceProdotto = e.target.getAttribute('data-codiceprodotto');
-                    let codiceFornitore = e.target.getAttribute('data-codicefornitore');
+                    let amount = inputQuantita.value;
+                    let idProduct = e.target.getAttribute('data-codiceprodotto');
+                    let idSupplier = e.target.getAttribute('data-codicefornitore');
 
-                    if(isNaN(codiceProdotto) || isNaN(codiceFornitore) || !Number.isInteger(parseFloat(codiceProdotto)) || !Number.isInteger(parseFloat(codiceFornitore))){
+                    if(isNaN(idProduct) || isNaN(idSupplier) || !Number.isInteger(parseFloat(idProduct)) || !Number.isInteger(parseFloat(idSupplier))){
                         alert("Internal error");
                         return;
                     }
 
-                    cart.addProduct(codiceProdotto,codiceFornitore,quantita);
+                    cart.addProduct(idProduct,idSupplier,amount);
 
                     pageOrchestrator.hide();
                     pageOrchestrator.showCart();
@@ -487,10 +487,10 @@
                     pageOrchestrator.showHome();
                     return;
                 }
-                let codiceFornitore = parseInt(sAttr);
-                let codiceProdotto = parseInt(sAttr2);
+                let idSupplier = parseInt(sAttr);
+                let idProduct = parseInt(sAttr2);
 
-                let carrelloFornitore = cart.getCartForSupplier(codiceFornitore);
+                let carrelloFornitore = cart.getCartForSupplier(idSupplier);
 
                 if(carrelloFornitore === undefined){
                     td.textContent = "Nessun prodotto di questo fornitore nel carrello";
@@ -498,20 +498,20 @@
                 }
 
                 let numeroArticoli = carrelloFornitore.prodotti.reduce(function(total, prodotto) {
-                    return total + prodotto.quantita;
+                    return total + prodotto.amount;
                 }, 0);
 
                 let totale = 0;
                 for(let i = 0; i< carrelloFornitore.prodotti.length;i++){
                     let prodotto = carrelloFornitore.prodotti[i];
-                    let prodottoInListino = listino.filter(x => x.codiceFornitore === codiceFornitore && x.codiceProdotto === prodotto.codiceProdotto);
+                    let prodottoInListino = listino.filter(x => x.idSupplier === idSupplier && x.idProduct === prodotto.idProduct);
                     if(prodottoInListino.length == 0){
                         alert("Internal error\nYou will be taken to the homepage.");
                         pageOrchestrator.hide();
                         pageOrchestrator.showHome();
                         return;
                     }
-                    totale += prodotto.quantita * prodottoInListino[0].prezzo;
+                    totale += prodotto.amount * prodottoInListino[0].prezzo;
                 }
 
 
@@ -535,8 +535,8 @@
             let rect = e.target.getBoundingClientRect();
             let height = e.target.offsetHeight;
 
-            let codiceFornitore = e.target.getAttribute("data-codicefornitore");
-            let cartFornitore = cart.getCartForSupplier(codiceFornitore);
+            let idSupplier = e.target.getAttribute("data-codicefornitore");
+            let cartFornitore = cart.getCartForSupplier(idSupplier);
 
             if(cartFornitore == null){
                 return;
@@ -580,7 +580,7 @@
                             let products = info[0].products;
                             products.forEach( prod => {
                                 let li = document.createElement('li');
-                                li.textContent = prod.quantita + "x " + prod.nome;
+                                li.textContent = prod.amount + "x " + prod.nome;
                                 list.appendChild(li);
                             })
 
@@ -763,12 +763,12 @@
                     let tdImg = document.createElement('td');
                     row.appendChild(tdImg);
                     let img = document.createElement('img');
-                    img.src = "image?codiceProdotto=" + product.codice;
+                    img.src = "image?idProduct=" + product.codice;
                     tdImg.appendChild(img);
 
                     let tdQuantita = document.createElement('td');
                     row.appendChild(tdQuantita);
-                    tdQuantita.textContent = product.quantita;
+                    tdQuantita.textContent = product.amount;
 
                     let tdPrezzo = document.createElement('td');
                     row.appendChild(tdPrezzo);
@@ -787,7 +787,7 @@
                 return ;
             }
 
-            let codiceFornitore = parseInt(cf);
+            let idSupplier = parseInt(cf);
 
             let cart;
 
@@ -805,7 +805,7 @@
                 cart = [];
             }
 
-            let fornitore = cart.filter(o => o.codiceFornitore == codiceFornitore);
+            let fornitore = cart.filter(o => o.idSupplier == idSupplier);
 
             if(fornitore.length == 0){
                 return undefined;
@@ -820,9 +820,9 @@
                 return;
             }
 
-            let codiceProdotto = parseInt(cp);
-            let codiceFornitore = parseInt(cf);
-            let quantita = parseInt(q);
+            let idProduct = parseInt(cp);
+            let idSupplier = parseInt(cf);
+            let amount = parseInt(q);
 
             let cart;
 
@@ -840,15 +840,15 @@
                 cart = [];
             }
 
-            let fornitore= cart.filter( o => o.codiceFornitore === codiceFornitore)[0]
+            let fornitore= cart.filter( o => o.idSupplier === idSupplier)[0]
 
             if (fornitore === undefined){
                 let newVoice = {
-                    "codiceFornitore" : codiceFornitore,
+                    "idSupplier" : idSupplier,
                     "prodotti" : [
                         {
-                            "codiceProdotto" : codiceProdotto,
-                            "quantita" : quantita
+                            "idProduct" : idProduct,
+                            "amount" : amount
                         }
                     ]
                 }
@@ -859,26 +859,26 @@
             else{
                 if(fornitore.prodotti.length == 0){
                     let newVoice = {
-                                "codiceProdotto" : codiceProdotto,
-                                "quantita" : quantita
+                                "idProduct" : idProduct,
+                                "amount" : amount
                     }
 
                     fornitore.prodotti.push(newVoice);
                 }
                 else{
-                    let prodotto = fornitore.prodotti.filter(o => o.codiceProdotto === codiceProdotto)[0];
+                    let prodotto = fornitore.prodotti.filter(o => o.idProduct === idProduct)[0];
 
                     if(prodotto === undefined){
                         let newVoice = {
-                            "codiceProdotto" : codiceProdotto,
-                            "quantita" : quantita
+                            "idProduct" : idProduct,
+                            "amount" : amount
                         }
 
                         fornitore.prodotti.push(newVoice);
 
                     }
                     else{
-                        prodotto.quantita += quantita;
+                        prodotto.amount += amount;
                     }
                 }
 
@@ -894,7 +894,7 @@
                 return;
             }
 
-            let codiceFornitore = parseInt(cf);
+            let idSupplier = parseInt(cf);
 
             let cart;
 
@@ -908,18 +908,18 @@
                 return ;
             }
 
-            let fornitore = cart.filter(o => o.codiceFornitore === codiceFornitore)[0];
+            let fornitore = cart.filter(o => o.idSupplier === idSupplier)[0];
 
             if(fornitore === undefined){
-                alert("codiceFornitore non valido");
+                alert("idSupplier non valido");
                 pageOrchestrator.hide();
                 pageOrchestrator.showCart();
                 return ;
                 return;
             }
             if( fornitore.prodotti == null || isObjectEmpty(fornitore.prodotti) || fornitore.prodotti.length === 0 ){
-                alert("codiceFornitore non valido");
-                cart = cart.filter(o => o.codiceFornitore != codiceFornitore);
+                alert("idSupplier non valido");
+                cart = cart.filter(o => o.idSupplier != idSupplier);
                 localStorage.setItem(JSON.stringify(cart));
                 pageOrchestrator.hide();
                 pageOrchestrator.showHome();
@@ -931,7 +931,7 @@
                     let text = response.responseText;
                     switch (response.status) {
                         case 200:
-                            self.removeProductsOfSupplier(codiceFornitore);
+                            self.removeProductsOfSupplier(idSupplier);
                             pageOrchestrator.hide();
                             pageOrchestrator.showOrders();
                             break;
@@ -966,7 +966,7 @@
                 pageOrchestrator.showOrders();
             }
 
-            let codiceFornitore = parseInt(cf);
+            let idSupplier = parseInt(cf);
 
             let cart;
 
@@ -980,7 +980,7 @@
                 return ;
             }
 
-            cart = cart.filter(x => x.codiceFornitore != codiceFornitore);
+            cart = cart.filter(x => x.idSupplier != idSupplier);
 
             localStorage.setItem(this.key, JSON.stringify(cart));
         }
@@ -1129,7 +1129,7 @@
                     rowProduct.appendChild(tdPrezzo);
 
                     let tdQuantita = document.createElement('td');
-                    tdQuantita.textContent = product.quantita;
+                    tdQuantita.textContent = product.amount;
                     rowProduct.appendChild(tdQuantita);
                 })
 

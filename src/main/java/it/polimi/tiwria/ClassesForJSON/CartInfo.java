@@ -3,17 +3,17 @@ package it.polimi.tiwria.ClassesForJSON;
 import java.util.List;
 
 public class CartInfo {
-    private Integer codiceFornitore;
+    private Integer idSupplier;
 
     private List<ProductInCartInfo> prodotti;
 
-    public CartInfo(Integer codiceFornitore, List<ProductInCartInfo> prodotti) {
-        this.codiceFornitore = codiceFornitore;
+    public CartInfo(Integer idSupplier, List<ProductInCartInfo> prodotti) {
+        this.idSupplier = idSupplier;
         this.prodotti = prodotti;
     }
 
     public Integer getCodiceFornitore() {
-        return codiceFornitore;
+        return idSupplier;
     }
 
     public List<ProductInCartInfo> getProdotti() {

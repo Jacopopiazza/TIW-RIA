@@ -111,7 +111,7 @@ public class GetCartInfo extends HttpServlet {
                     prod.addProperty("codice", p.codice());
                     prod.addProperty("nome", p.nome());
                     prod.addProperty("prezzo", price);
-                    prod.addProperty("quantita", prodotto.getQuantita());
+                    prod.addProperty("amount", prodotto.getQuantita());
                     products.add(prod);
 
 

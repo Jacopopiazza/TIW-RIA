@@ -18,11 +18,11 @@ public class ProductDAO {
         this.connection = connection;
     }
 
-    public Product getProduct(int codiceProdotto) throws SQLException{
+    public Product getProduct(int idProduct) throws SQLException{
         String query = "SELECT * FROM prodotto WHERE Codice = ?";
 
         PreparedStatement statement = connection.prepareStatement(query);
-        statement.setInt(1, codiceProdotto);
+        statement.setInt(1, idProduct);
         ResultSet resultSet = statement.executeQuery();
 
         if(resultSet.isBeforeFirst()) {
@@ -81,10 +81,10 @@ public class ProductDAO {
         return lasts;
     }
 
-    public String getFotoPathFromCodiceProdotto(int codiceProdotto) throws SQLException{
+    public String getFotoPathFromCodiceProdotto(int idProduct) throws SQLException{
         String query = "SELECT Foto FROM prodotto P INNER JOIN prodottodafornitore pdf ON P.Codice=pdf.CodiceProdotto WHERE Codice = ?";
         PreparedStatement statement = connection.prepareStatement(query);
-        statement.setInt(1, codiceProdotto);
+        statement.setInt(1, idProduct);
         ResultSet resultSet = statement.executeQuery();
 
         if(!resultSet.isBeforeFirst()){
@@ -185,20 +185,20 @@ public class ProductDAO {
         return prods;
     }
 
-    public void prodottoVisualizzato(User user, int codiceProdotto) throws SQLException{
+    public void prodottoVisualizzato(User user, int idProduct) throws SQLException{
         String query = "INSERT into visualizzazioni (EmailUtente, CodiceProdotto)   VALUES(?, ?)";
         PreparedStatement pstatement = connection.prepareStatement(query);
         pstatement.setString(1, user.email());
-        pstatement.setInt(2, codiceProdotto);
+        pstatement.setInt(2, idProduct);
         pstatement.executeUpdate();
     }
 
-    public boolean checkProductHasSupplier(int codiceProdotto, int codiceFornitore) throws SQLException {
+    public boolean checkProductHasSupplier(int idProduct, int idSupplier) throws SQLException {
         String query = "SELECT * FROM prodottodafornitore WHERE CodiceProdotto=? AND CodiceFornitore=?";
         PreparedStatement statement = connection.prepareStatement(query);
 
-        statement.setInt(1, codiceProdotto);
-        statement.setInt(2, codiceFornitore);
+        statement.setInt(1, idProduct);
+        statement.setInt(2, idSupplier);
 
         ResultSet resultSet = statement.executeQuery();
 
@@ -206,12 +206,12 @@ public class ProductDAO {
 
     }
 
-    public int getPriceForProductFromSupplier(int codiceProdotto, int codiceFornitore) throws SQLException{
+    public int getPriceForProductFromSupplier(int idProduct, int idSupplier) throws SQLException{
         String query = "SELECT * FROM prodottodafornitore WHERE CodiceProdotto=? AND CodiceFornitore=?";
         PreparedStatement statement = connection.prepareStatement(query);
 
-        statement.setInt(1, codiceProdotto);
-        statement.setInt(2, codiceFornitore);
+        statement.setInt(1, idProduct);
+        statement.setInt(2, idSupplier);
 
         ResultSet resultSet = statement.executeQuery();
 

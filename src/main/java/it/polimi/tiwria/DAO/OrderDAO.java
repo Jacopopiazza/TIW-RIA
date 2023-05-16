@@ -70,14 +70,14 @@ public class OrderDAO {
         return ordini;
     }
 
-    public void createOrder(User user, int codiceFornitore, int speseSpedizione, int totaleOrdine, List<ProductInCartInfo> prodottiOrdine, String NomeFornitore) throws SQLException {
+    public void createOrder(User user, int idSupplier, int speseSpedizione, int totaleOrdine, List<ProductInCartInfo> prodottiOrdine, String NomeFornitore) throws SQLException {
 
         connection.setAutoCommit(false);
 
         try {
             String query = "INSERT INTO ordine (CodiceFornitore, SpeseSpedizione, Via, Civico, CAP, Citta, Stato, Provincia, EmailUtente, TotaleOrdine) VALUES (?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement stmt1 = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            stmt1.setInt(1, codiceFornitore);
+            stmt1.setInt(1, idSupplier);
             stmt1.setInt(2, speseSpedizione);
             stmt1.setString(3, user.via());
             stmt1.setString(4, user.civico());
@@ -112,7 +112,7 @@ public class OrderDAO {
                 stmt2.setInt(1, id_ordine);
                 stmt2.setInt(2, e.getCodiceProdotto());
                 stmt2.setInt(3, e.getQuantita());
-                stmt2.setInt(4, new ProductDAO(connection).getPriceForProductFromSupplier(e.getCodiceProdotto(),codiceFornitore));
+                stmt2.setInt(4, new ProductDAO(connection).getPriceForProductFromSupplier(e.getCodiceProdotto(),idSupplier));
 
 
                 int affectedRows2 = stmt2.executeUpdate();

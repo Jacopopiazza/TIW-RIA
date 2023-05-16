@@ -36,26 +36,26 @@ public class ViewProduct extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        String sCodiceProdotto = request.getParameter("codiceProdotto");
+        String sCodiceProdotto = request.getParameter("idProduct");
 
         if(sCodiceProdotto == null || sCodiceProdotto.isEmpty()){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Missing codiceProdotto parameter");
+            response.getWriter().println("Missing idProduct parameter");
             return;
         }
 
-        int codiceProdotto;
+        int idProduct;
         try{
-            codiceProdotto = Integer.parseInt(sCodiceProdotto);
+            idProduct = Integer.parseInt(sCodiceProdotto);
         }catch (NumberFormatException ex){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Invalid codiceProdotto parameter");
+            response.getWriter().println("Invalid idProduct parameter");
             return;
         }
 
-        if(codiceProdotto < 0){
+        if(idProduct < 0){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("Invalid codiceProdotto parameter");
+            response.getWriter().println("Invalid idProduct parameter");
             return;
         }
 
@@ -69,12 +69,12 @@ public class ViewProduct extends HttpServlet {
         Map<Supplier,Integer> map;
 
         try {
-            productDAO.prodottoVisualizzato(user,codiceProdotto);
-            prod = productDAO.getProduct(codiceProdotto);
-            map = supplierDAO.getSuppliersAndPricesForProduct(codiceProdotto);
+            productDAO.prodottoVisualizzato(user,idProduct);
+            prod = productDAO.getProduct(idProduct);
+            map = supplierDAO.getSuppliersAndPricesForProduct(idProduct);
         }catch (SQLException ex){
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().println("Error while querying db. Retry later");
+            response.getWriter().println("Error while querying db. Retry later.");
             return;
         }
 

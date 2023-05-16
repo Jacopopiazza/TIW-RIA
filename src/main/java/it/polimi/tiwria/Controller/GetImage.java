@@ -37,10 +37,10 @@ public class GetImage extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        String codiceProdotto = request.getParameter("codiceProdotto");
+        String idProduct = request.getParameter("idProduct");
         int idProdotto;
         try{
-            idProdotto = Integer.parseInt(codiceProdotto);
+            idProdotto = Integer.parseInt(idProduct);
         } catch (NumberFormatException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("Bad parameter in getting image");
