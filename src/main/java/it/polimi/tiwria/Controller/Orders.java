@@ -120,7 +120,8 @@ public class Orders extends HttpServlet {
         Supplier supplier;
 
         if(articoliNelCarrello == 0){
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No products in cart for this supplier, cannot create an order.");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("No products in cart for this supplier, cannot create an order.");
             return;
         }
 
@@ -134,13 +135,15 @@ public class Orders extends HttpServlet {
                 }
             }).reduce(0, Integer::sum);
         }catch (RuntimeException ex){
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error in retriving prices." + ex.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error in retriving prices.");
             return;
         }
 
         //If total < 0 -> error
         if(subTotale < 0){
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "No products in cart for this supplier, cannot create an order.");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("No products in cart for this supplier, cannot create an order.");
             return;
         }
 
@@ -148,12 +151,14 @@ public class Orders extends HttpServlet {
         try{
             supplier = supplierDAO.getSupplier(codiceFornitore);
         }catch (SQLException ex){
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error in retriving supplier info." + ex.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error in retriving supplier info.");
             return;
         }
 
         if(supplier == null){
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error in retriving supplier info.");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error in retriving supplier info.");
             return;
         }
 
@@ -162,7 +167,8 @@ public class Orders extends HttpServlet {
             try{
                 speseSpedizione = supplierDAO.getDeliveryCostOfSupplierForNProducts(codiceFornitore, articoliNelCarrello);
             }catch (SQLException ex){
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error in retriving delivery cost info." + ex.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("Error in retriving delivery cost info.");
                 return;
             }
         }
@@ -174,7 +180,9 @@ public class Orders extends HttpServlet {
         try{
             orderDAO.createOrder(user, codiceFornitore, speseSpedizione, subTotale, prodottiPerOrdine, supplier.getNome());
         }catch (SQLException ex){
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while creating the order\n." + ex.getMessage());
+
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error while creating the order");
             return;
         }
 

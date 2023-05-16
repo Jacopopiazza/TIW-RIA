@@ -53,6 +53,12 @@ public class ViewProduct extends HttpServlet {
             return;
         }
 
+        if(codiceProdotto < 0){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Invalid codiceProdotto parameter");
+            return;
+        }
+
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
 

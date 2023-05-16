@@ -42,7 +42,8 @@ public class GetImage extends HttpServlet {
         try{
             idProdotto = Integer.parseInt(codiceProdotto);
         } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad parameter in getting image");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Bad parameter in getting image");
             return;
         }
 
@@ -51,12 +52,14 @@ public class GetImage extends HttpServlet {
         try{
             relativePath = productDAO.getFotoPathFromCodiceProdotto(idProdotto);
         }catch (SQLException ex){
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error in retriving Fotopath from DB");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error in retriving Fotopath from DB");
             return;
         }
 
         if(relativePath == null){
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error in retriving Fotopath from DB");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error in retriving Fotopath from DB");
             return;
         }
 
