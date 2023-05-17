@@ -43,13 +43,8 @@ public class OrderDAO {
             List<OrderDetail> orderDetails = new ArrayList<>();
 
             while(rs2.next()){
-                //Here in rs there are all the products of order in rs
-                Product product = productDAO.getProduct(rs2.getInt("CodiceProdotto"));
-                if(product == null){
-                    throw new SQLException();
-                }
 
-                OrderDetail orderDetail = new OrderDetail(rs.getInt("Codice"), product, rs2.getInt("PrezzoUnitario"), rs2.getInt("Quantita"));
+                OrderDetail orderDetail = new OrderDetail(rs.getInt("Codice"), rs2.getString("NomeProdotto"), rs2.getInt("PrezzoUnitario"), rs2.getInt("Quantita"));
                 orderDetails.add(orderDetail);
             }
 
@@ -99,13 +94,13 @@ public class OrderDAO {
             }
 
             //Creo righe dell'ordine
-            query = "INSERT INTO dettaglioordine (CodiceOrdine, CodiceProdotto, Quantita, PrezzoUnitario) VALUES (?,?,?,?);";
+            query = "INSERT INTO dettaglioordine (CodiceOrdine, NomeProdotto, Quantita, PrezzoUnitario) VALUES (?,?,?,?);";
             PreparedStatement stmt2 = connection.prepareStatement(query);
             for(ProductInCartInfo e : prodottiOrdine){
 
                 Product product = new ProductDAO(connection).getProduct(e.getCodiceProdotto());
                 stmt2.setInt(1, id_ordine);
-                stmt2.setInt(2, e.getCodiceProdotto());
+                stmt2.setString(2, product.nome());
                 stmt2.setInt(3, e.getQuantita());
                 stmt2.setInt(4, new ProductDAO(connection).getPriceForProductFromSupplier(e.getCodiceProdotto(),idSupplier));
 

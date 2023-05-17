@@ -51,7 +51,7 @@ public class Orders extends HttpServlet {
             ordini = orderDAO.getOrdersForUser(user.email());
         }catch (SQLException ex){
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Error in fetching orders for logged user from db.\n");
+            response.getWriter().write("Error in fetching orders for logged user from db.\n" + ex.getMessage());
             return;
         }
 

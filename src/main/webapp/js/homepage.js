@@ -1100,10 +1100,6 @@
                 let rowHeading = document.createElement('tr');
                 thead.appendChild(rowHeading);
 
-                let thCodice = document.createElement('th');
-                thCodice.textContent = "Codice Prodotto";
-                rowHeading.appendChild(thCodice);
-
                 let thNome = document.createElement('th');
                 thNome.textContent = "Nome Prodotto";
                 rowHeading.appendChild(thNome);
@@ -1120,12 +1116,8 @@
                     let rowProduct = document.createElement('tr');
                     tbody.appendChild(rowProduct);
 
-                    let tdCodice = document.createElement('td');
-                    tdCodice.textContent = product.product.codice;
-                    rowProduct.appendChild(tdCodice);
-
                     let tdNome = document.createElement('td');
-                    tdNome.textContent = product.product.nome;
+                    tdNome.textContent = product.nomeProdotto;
                     rowProduct.appendChild(tdNome);
 
                     let tdPrezzo = document.createElement('td');
