@@ -331,7 +331,7 @@
             let tableHeaderRow = document.createElement('tr');
             tableHead.appendChild(tableHeaderRow);
 
-            let columnNames = ['Nome','Valutazione','Prezzo Unitario','Spese Spedizione','Spesa minima spedizione gratuita','Già nel carrello','']
+            let columnNames = ['Nome','Valutazione','Prezzo Unitario','Sconto Applicato','Spese Spedizione','Spesa minima spedizione gratuita','Già nel carrello','']
             for(let i = 0;i<columnNames.length;i++){
                 let th = document.createElement('th');
                 th.textContent = columnNames[i];
@@ -357,6 +357,10 @@
                 let tdPrezzoUnitario = document.createElement('td');
                 supplierRow.appendChild(tdPrezzoUnitario);
                 tdPrezzoUnitario.textContent = (supplier.price / 100.00).toFixed(2) + ' €';
+
+                let tdSconto = document.createElement('td');
+                supplierRow.appendChild(tdSconto);
+                tdSconto.textContent = (supplier.discount * 100.00).toFixed(2) + ' %';
 
                 let tdSpeseSpedizione = document.createElement('td');
                 supplierRow.appendChild(tdSpeseSpedizione);
@@ -1064,7 +1068,7 @@
 
                 let pFornitore = document.createElement('p');
                 li.appendChild(pFornitore);
-                pFornitore.textContent = "Fornitore: " + order.supplier.nome;
+                pFornitore.textContent = "Fornitore: " + order.nomeFornitore;
 
                 let pDataSpedizione = document.createElement('p');
                 li.appendChild(pDataSpedizione);

@@ -8,6 +8,7 @@ import it.polimi.tiwria.ClassesForJSON.ProductWithFullInfo;
 import it.polimi.tiwria.DAO.ProductDAO;
 import it.polimi.tiwria.DAO.SupplierDAO;
 import it.polimi.tiwria.Utilities.ConnectionFactory;
+import it.polimi.tiwria.Utilities.Pair;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.UnavailableException;
 import jakarta.servlet.annotation.WebServlet;
@@ -66,7 +67,7 @@ public class ViewProduct extends HttpServlet {
         SupplierDAO supplierDAO = new SupplierDAO(connection);
         ProductWithFullInfo product;
         Product prod;
-        Map<Supplier,Integer> map;
+        Map<Supplier, Pair<Integer, Double>> map;
 
         try {
             productDAO.prodottoVisualizzato(user,idProduct);

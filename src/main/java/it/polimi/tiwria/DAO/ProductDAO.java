@@ -96,7 +96,7 @@ public class ProductDAO {
     }
 
     public Queue<Product> getFiveRandomProducts(List<Product> notIn) throws SQLException{
-        String query = "SELECT * FROM prodotto P WHERE P.Categoria='Tech' AND P.Codice in (SELECT CodiceProdotto FROM prodottodafornitore) ";
+        String query = "SELECT * FROM prodotto P WHERE P.Categoria='Tech' AND P.Codice in (SELECT CodiceProdotto FROM prodottodafornitore WHERE Sconto > 0)";
         if(!notIn.isEmpty()){
             query += " AND P.Codice NOT IN (";
             for(int  i = 0; i < notIn.size();i++){
@@ -137,7 +137,7 @@ public class ProductDAO {
     }
 
     public List<PriceListEntry> getPriceList() throws SQLException{
-        String query = "SELECT CodiceProdotto, CodiceFornitore, Prezzo FROM prodottodafornitore;";
+        String query = "SELECT CodiceProdotto, CodiceFornitore, Round((Prezzo*(1-Sconto))) as Prezzo, Sconto FROM prodottodafornitore;";
         List<PriceListEntry> results = new ArrayList<>();
         PreparedStatement statement = connection.prepareStatement(query);
 
@@ -150,7 +150,8 @@ public class ProductDAO {
         while (resultSet.next()) {
             PriceListEntry entry = new PriceListEntry(resultSet.getInt("CodiceFornitore"),
                                                         resultSet.getInt("CodiceProdotto"),
-                                                        resultSet.getInt("Prezzo"));
+                                                        resultSet.getInt("Prezzo"),
+                                                        resultSet.getDouble("Sconto"));
             results.add(entry);
         }
 
@@ -159,7 +160,7 @@ public class ProductDAO {
     }
 
     public Map<Product, Integer> getProductsFromQueryString(String queryString) throws SQLException{
-        String query = "SELECT P.*, Min(Prezzo) AS PrezzoMinimo FROM db_tiw.prodotto P INNER JOIN db_tiw.prodottodafornitore PDF on P.Codice=PDF.CodiceProdotto WHERE P.Nome LIKE ? OR P.Descrizione LIKE ? GROUP BY CodiceProdotto ORDER BY PrezzoMinimo;";
+        String query = "SELECT P.*, Min(Round((Prezzo*(1-Sconto)))) AS PrezzoMinimo FROM db_tiw.prodotto P INNER JOIN db_tiw.prodottodafornitore PDF on P.Codice=PDF.CodiceProdotto WHERE P.Nome LIKE ? OR P.Descrizione LIKE ? GROUP BY CodiceProdotto ORDER BY PrezzoMinimo;";
         Map<Product, Integer> prods = new HashMap<>();
         PreparedStatement statement = connection.prepareStatement(query);
 
@@ -207,7 +208,7 @@ public class ProductDAO {
     }
 
     public int getPriceForProductFromSupplier(int idProduct, int idSupplier) throws SQLException{
-        String query = "SELECT * FROM prodottodafornitore WHERE CodiceProdotto=? AND CodiceFornitore=?";
+        String query = "SELECT CodiceProdotto,CodiceFornitore,Sconto, Round((Prezzo*(1-Sconto))) as Prezzo FROM prodottodafornitore WHERE CodiceProdotto=? AND CodiceFornitore=?";
         PreparedStatement statement = connection.prepareStatement(query);
 
         statement.setInt(1, idProduct);

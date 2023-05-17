@@ -22,7 +22,6 @@ public class OrderDAO {
         PreparedStatement stmt = connection.prepareStatement(query);
 
         ProductDAO productDAO = new ProductDAO(this.connection);
-        SupplierDAO supplierDAO = new SupplierDAO(this.connection);
 
         stmt.setString(1,emailUtente);
 
@@ -53,18 +52,14 @@ public class OrderDAO {
                 OrderDetail orderDetail = new OrderDetail(rs.getInt("Codice"), product, rs2.getInt("PrezzoUnitario"), rs2.getInt("Quantita"));
                 orderDetails.add(orderDetail);
             }
-            Supplier supplier = supplierDAO.getSupplier(rs.getInt("CodiceFornitore"));
-            if(supplier == null){
-                throw new SQLException();
-            }
 
             Date date = rs.getDate("DataSpedizione");
             if(rs.wasNull()){
                 date = null;
             }
-            order = new Order(rs.getInt("Codice"), supplier, rs.getInt("TotaleOrdine"), rs.getInt("SpeseSpedizione"),
+            order = new Order(rs.getInt("Codice"), rs.getInt("TotaleOrdine"), rs.getInt("SpeseSpedizione"),
                     rs.getString("Via"), rs.getString("Civico"), rs.getString("Citta"), rs.getString("Provincia"),
-                    rs.getString("CAP"),rs.getString("Stato"), rs.getString("EmailUtente"), date, orderDetails);
+                    rs.getString("CAP"),rs.getString("Stato"), rs.getString("EmailUtente"), date, orderDetails, rs.getString("NomeFornitore"));
             ordini.add(order);
         }
         return ordini;
@@ -75,18 +70,18 @@ public class OrderDAO {
         connection.setAutoCommit(false);
 
         try {
-            String query = "INSERT INTO ordine (CodiceFornitore, SpeseSpedizione, Via, Civico, CAP, Citta, Stato, Provincia, EmailUtente, TotaleOrdine) VALUES (?,?,?,?,?,?,?,?,?,?)";
+            String query = "INSERT INTO ordine (SpeseSpedizione, Via, Civico, CAP, Citta, Stato, Provincia, EmailUtente, TotaleOrdine, NomeFornitore) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement stmt1 = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            stmt1.setInt(1, idSupplier);
-            stmt1.setInt(2, speseSpedizione);
-            stmt1.setString(3, user.via());
-            stmt1.setString(4, user.civico());
-            stmt1.setString(5, user.CAP());
-            stmt1.setString(6, user.citta());
-            stmt1.setString(7, user.stato());
-            stmt1.setString(8, user.provincia());
-            stmt1.setString(9, user.email());
-            stmt1.setInt(10, totaleOrdine);
+            stmt1.setInt(1, speseSpedizione);
+            stmt1.setString(2, user.via());
+            stmt1.setString(3, user.civico());
+            stmt1.setString(4, user.CAP());
+            stmt1.setString(5, user.citta());
+            stmt1.setString(6, user.stato());
+            stmt1.setString(7, user.provincia());
+            stmt1.setString(8, user.email());
+            stmt1.setInt(9, totaleOrdine);
+            stmt1.setString(10, NomeFornitore);
 
             int affectedRows1 = stmt1.executeUpdate();
             if (affectedRows1 == 0) {

@@ -2,6 +2,7 @@ package it.polimi.tiwria.DAO;
 
 import it.polimi.tiwria.Bean.DeliveryCost;
 import it.polimi.tiwria.Bean.Supplier;
+import it.polimi.tiwria.Utilities.Pair;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,10 +46,10 @@ public class SupplierDAO {
 
     }
 
-    public Map<Supplier, Integer> getSuppliersAndPricesForProduct(int idProduct) throws SQLException {
+    public Map<Supplier, Pair<Integer,Double>> getSuppliersAndPricesForProduct(int idProduct) throws SQLException {
 
-        String query = "SELECT F.*, Prezzo FROM prodottodafornitore pdf INNER JOIN fornitore F on pdf.CodiceFornitore=F.Codice WHERE CodiceProdotto=?";
-        Map<Supplier, Integer> suppliers = new HashMap<>();
+        String query = "SELECT F.*, Round((Prezzo*(1-Sconto))) as Prezzo, Sconto FROM prodottodafornitore pdf INNER JOIN fornitore F on pdf.CodiceFornitore=F.Codice WHERE CodiceProdotto=?";
+        Map<Supplier, Pair<Integer,Double>> suppliers = new HashMap<>();
         PreparedStatement statement = connection.prepareStatement(query);
 
         statement.setInt(1, idProduct);
@@ -73,7 +74,9 @@ public class SupplierDAO {
                     sogliaSpedizione,
                     deliveryCostList);
 
-            suppliers.put(supplier, resultSet.getInt("Prezzo"));
+
+
+            suppliers.put(supplier, new Pair<Integer,Double>( resultSet.getInt("Prezzo"), resultSet.getDouble("Sconto")));
         }
 
         return suppliers;
