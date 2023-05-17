@@ -70,7 +70,7 @@ public class OrderDAO {
         connection.setAutoCommit(false);
 
         try {
-            String query = "INSERT INTO ordine (SpeseSpedizione, Via, Civico, CAP, Citta, Stato, Provincia, EmailUtente, TotaleOrdine, NomeFornitore) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+            String query = "INSERT INTO ordine (SpeseSpedizione, Via, Civico, CAP, Citta, Stato, Provincia, EmailUtente, TotaleOrdine, NomeFornitore) VALUES (?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement stmt1 = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stmt1.setInt(1, speseSpedizione);
             stmt1.setString(2, user.via());
