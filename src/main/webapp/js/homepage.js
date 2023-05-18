@@ -1080,7 +1080,7 @@
 
                 let pTotale = document.createElement('p');
                 li.appendChild(pTotale);
-                pTotale.textContent = 'Totale ordine: ' + (order.totaleOrdine / 100).toFixed(2) + ' €';
+                pTotale.textContent = 'Totale ordine: ' + ((order.totaleOrdine + order.speseSpedizione) / 100).toFixed(2) + ' €';
 
                 let pSpeseSpedizione = document.createElement('p');
                 li.appendChild(pSpeseSpedizione);

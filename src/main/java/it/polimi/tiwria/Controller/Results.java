@@ -58,7 +58,7 @@ public class Results extends HttpServlet {
             return;
         }
 
-        List<ProductWithPrice> results = products.entrySet().stream().map(x -> new ProductWithPrice(x.getKey(),x.getValue())).toList();
+        List<ProductWithPrice> results = products.entrySet().stream().sorted((x,y) -> x.getValue().compareTo(y.getValue())).map(x -> new ProductWithPrice(x.getKey(),x.getValue())).toList();
         Gson gson = new Gson();
         String json = gson.toJson(results);
 
