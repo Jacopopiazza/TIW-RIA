@@ -8,9 +8,6 @@ Un’applicazione di commercio elettronico consente all’utente (acquirente) di
 # Versione con JavaScript
 Si realizzi un’applicazione client server web che estende e/o modifica le specifiche precedenti come segue:<br>
 ● Dopo il login dell’utente, l’intera applicazione è realizzata con un’unica pagina.<br>
-● Ogni interazione dell’utente è gestita senza ricaricare completamente la pagina, ma produce l’invocazione<br>
-asincrona del server e l’eventuale modifica del contenuto da aggiornare a seguito dell’evento.<br>
+● Ogni interazione dell’utente è gestita senza ricaricare completamente la pagina, ma produce l’invocazione asincrona del server e l’eventuale modifica del contenuto da aggiornare a seguito dell’evento.<br>
 ● L’applicazione memorizza il contenuto del carrello a lato client.<br>
-● Nella pagina RISULTATI l’elenco dettagliato dei prodotti già nel carrello da parte di un fornitore compare<br>
-mediante una finestra sovrapposta quando si passa con il mouse sopra il numero che indica quanti prodoti del
-medesimo fornitore sono già nel carrello.
+● Nella pagina RISULTATI l’elenco dettagliato dei prodotti già nel carrello da parte di un fornitore compare mediante una finestra sovrapposta quando si passa con il mouse sopra il numero che indica quanti prodoti del medesimo fornitore sono già nel carrello.<br>
